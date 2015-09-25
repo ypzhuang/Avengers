@@ -1,4 +1,13 @@
-This is your new Play application
-=====================================
+Play For Java, Sub-projects template
+Play2.2.6 
 
-This file will be packaged with your application, when using `play dist`.
+hulk ->common
+ironman ->common
+
+command:
+play //play console
+project hulk // select hulk sub project
+run  //run hulk sub project
+
+dist // deploy
+
