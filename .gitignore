@@ -9,7 +9,9 @@ dist
 /*.iml
 /out
 /.idea_modules
+.DS_Store
 /.classpath
 /.project
 /RUNNING_PID
 /.settings
+
