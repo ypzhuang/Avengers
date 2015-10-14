@@ -8,6 +8,7 @@ import play.data.validation.Constraints;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.With;
 
 import javax.persistence.Column;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * Created by ypzhuang on 15/9/24.
  */
+@With(CatchAction.class)
 public class FailReasons extends Controller {
 
 
@@ -92,6 +94,7 @@ public class FailReasons extends Controller {
         }
     }
 
+
     @SecuredAnnotation({"Super"})
     public static Result create() {
         ObjectNode json = Json.newObject();
@@ -114,21 +117,16 @@ public class FailReasons extends Controller {
         }
 
 
-        try {
-            FailReason failReason = new FailReason();
-            failReason.content = content;
-            failReason.description = description;
-            failReason.suggestion = suggestion;
-            failReason.isDeleted = false;
-            failReason.createTime = new Date();
-            failReason.save();
+        FailReason failReason = new FailReason();
+        failReason.content = content;
+        failReason.description = description;
+        failReason.suggestion = suggestion;
+        failReason.isDeleted = false;
+        failReason.createTime = new Date();
+        failReason.save();
 
-            return ok(Json.toJson(failReason));
-        }catch(Exception e) {
-            Logger.error(e.getMessage());
-            json.put("error", e.getMessage());
-            return internalServerError(json);
-        }
+        return ok(Json.toJson(failReason));
+
 
     }
 

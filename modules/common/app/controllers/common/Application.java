@@ -11,7 +11,7 @@ import com.typesafe.plugin.*;
 
 
 
-
+@With(CatchAction.class)
 public class Application extends Controller {
 
     public static Result index() {

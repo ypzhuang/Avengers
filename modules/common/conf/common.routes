@@ -14,11 +14,12 @@ GET           /products                     controllers.common.Products.list()
 GET           /products/search              controllers.common.Products.search(filter: String ?= "", page: Int ?= 0,pageSize: Int ?=5 )
 GET           /products/home                controllers.common.Products.home()
 GET           /products/new                 controllers.common.Products.newProduct()
+GET           /products/mode                controllers.common.Products.currentMode()
 GET           /products/:ean                controllers.common.Products.details(ean: Long)
 POST          /products/save                controllers.common.Products.save()
 DELETE        /products/:ean                controllers.common.Products.delete(ean: Long)
 
-GET           /products/mode                controllers.common.Products.currentMode()
+
 GET           /products/push                controllers.common.Products.push(deviceToken:String)
 GET           /products/androidPush         controllers.common.Products.androidPush(deviceToken:String)
 

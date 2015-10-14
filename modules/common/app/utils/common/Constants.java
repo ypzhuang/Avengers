@@ -13,6 +13,8 @@ public class Constants {
     public static final String ROLE_KEY = "role";
 
 
+    public static final String ERROR_KEY = "error";
+
     public static final String AUTH_ERROR_KEY = "error";
 
     public static final String WRONG_USER_OR_PASSWORD_ERROR = "wrong user name or password.";

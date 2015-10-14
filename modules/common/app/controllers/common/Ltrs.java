@@ -8,6 +8,7 @@ import play.Logger;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.mvc.BodyParser;
+import play.mvc.With;
 import utils.common.Constants;
 import models.common.Ltr;
 import models.common.LtrStatus;
@@ -17,7 +18,7 @@ import play.mvc.Result;
 
 import java.util.*;
 
-
+@With(CatchAction.class)
 public class Ltrs extends Controller {
 
 

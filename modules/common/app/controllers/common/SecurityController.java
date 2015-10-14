@@ -2,20 +2,20 @@ package controllers.common;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.common.SysUser;
-import play.api.mvc.SimpleResult;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import scala.concurrent.Future;
+import play.mvc.With;
 import utils.common.Constants;
 import views.html.login;
 
 /**
  * Created by ypzhuang on 15/9/21.
  */
+@With(CatchAction.class)
 public class SecurityController extends Controller {
 
     public static class Login {

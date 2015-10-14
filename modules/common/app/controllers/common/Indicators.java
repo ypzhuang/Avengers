@@ -6,6 +6,7 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import models.common.Indicator;
+import play.mvc.With;
 import utils.common.Constants;
 
 
@@ -16,6 +17,7 @@ import java.util.Map;
 /**
  * Created by ypzhuang on 15/9/16.
  */
+@With(CatchAction.class)
 public class Indicators extends Controller {
     @SecuredAnnotation({"Editor","Reviewer","Super"})
     public static Result filterByVal(String name){

@@ -5,6 +5,7 @@ import models.common.Hospital;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.With;
 import utils.common.Constants;
 
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Created by ypzhuang on 15/9/17.
  */
-
+@With(CatchAction.class)
 @SecuredAnnotation({"Editor","Super"})
 public class Hospitals extends Controller {
 
