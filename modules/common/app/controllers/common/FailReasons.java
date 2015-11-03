@@ -2,7 +2,6 @@ package controllers.common;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.common.FailReason;
-import play.Logger;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.libs.Json;
@@ -83,7 +82,7 @@ public class FailReasons extends Controller {
         }
 
         if (failReason.isDeleted) {
-            json.put("error", "the fail reason with id " + id + " has been deleted.You can not update it.") ;
+            json.put("error", "the fail reason with id " + id + " has been deleted.You can not updateHospital it.") ;
             return forbidden(json);
         } else if (flag){
             failReason.updateFailReason();
@@ -139,5 +138,6 @@ public class FailReasons extends Controller {
 
         @Constraints.MaxLength(1000)
         public String suggestion;
+
     }
 }

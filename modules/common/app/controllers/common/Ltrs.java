@@ -33,34 +33,32 @@ public class Ltrs extends Controller {
     }
 
     @SecuredAnnotation({"Super"})
-    @BodyParser.Of(BodyParser.Json.class)
+    //@BodyParser.Of(BodyParser.Json.class)
     public static Result list(String filter,int page,int pageSize){
-        JsonNode json = request().body().asJson();
-        Logger.debug("isArray:{}", json.findPath("status").getClass());
-
-        if (json.get("status") != null ) {
-
-            if (json.get("status").isArray()) {
-                ArrayNode data=(ArrayNode)json.get("status");
-                List<LtrStatus> statuses=new ArrayList<LtrStatus>();
-                for (JsonNode dataNode : data) {
-                    statuses.add(LtrStatus.valueOf(dataNode.asText()));
-                }
-                Logger.debug("status is :{}",statuses);
-            }
-
-        }
-
-
-
-        List<JsonNode> statusList = json.findValues("status");
-
-        for (JsonNode tmp : statusList) {
-            String text = tmp.asText();
-            Logger.debug("text:{}",text);
-            //LtrStatus status = LtrStatus.valueOf(tmp.asText());
-            //Logger.debug("parsed LTR Status is :{}",status);
-        }
+//        JsonNode json = request().body().asJson();
+//        Logger.debug("isArray:{}", json.findPath("status").getClass());
+//
+//        if (json.get("status") != null ) {
+//
+//            if (json.get("status").isArray()) {
+//                ArrayNode data=(ArrayNode)json.get("status");
+//                List<LtrStatus> statuses=new ArrayList<LtrStatus>();
+//                for (JsonNode dataNode : data) {
+//                    statuses.add(LtrStatus.valueOf(dataNode.asText()));
+//                }
+//                Logger.debug("status is :{}",statuses);
+//            }
+//
+//        }
+//
+//
+//
+//        List<JsonNode> statusList = json.findValues("status");
+//
+//        for (JsonNode tmp : statusList) {
+//            String text = tmp.asText();
+//            Logger.debug("text:{}",text);
+//        }
 
         List<Ltr> ltrs = Ltr.search(filter, page, pageSize);
         return ok(Json.toJson(ltrs));
@@ -105,23 +103,27 @@ public class Ltrs extends Controller {
     }
 
 
-
-
+    /**
+     * updateHospital test time and hospitail id
+     * @param id
+     * @return
+     */
     @SecuredAnnotation({"Editor","Reviewer","Super"})
-    public static Result update(Long id){
+    public static Result updateHospital(Long id){
+
         ObjectNode json = Json.newObject();
         final Ltr ltr  = Ltr.find.byId(id);
         if (ltr == null) {
             return notFound(String.format("Ltr(%d) does not exist.", id));
         }
 
-        Form<LtrForm> ltrFormForm = Form.form(LtrForm.class).bindFromRequest();
+        Form<LtrHospitalAndTesttimeForm> ltrFormForm = Form.form(LtrHospitalAndTesttimeForm.class).bindFromRequest();
 
         if (ltrFormForm.hasErrors()) {
             return badRequest(ltrFormForm.errorsAsJson());
         }
 
-        LtrForm form = ltrFormForm.get();
+        LtrHospitalAndTesttimeForm form = ltrFormForm.get();
         Long hospitalId = form.hospitalId;
         String hospitalName = form.hospitalName;
         Date testTime = form.testtime;
@@ -147,7 +149,7 @@ public class Ltrs extends Controller {
     }
 
 
-    public static class LtrForm {
+    public static class LtrHospitalAndTesttimeForm {
         @Constraints.Required
         public Long hospitalId;
 
@@ -157,5 +159,7 @@ public class Ltrs extends Controller {
         @Constraints.Required
         public Date testtime;
     }
+
+
 
 }

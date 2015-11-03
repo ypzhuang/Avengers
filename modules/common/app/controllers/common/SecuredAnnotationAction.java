@@ -23,6 +23,8 @@ public class SecuredAnnotationAction extends Action<SecuredAnnotation> {
 
         String token = getTokenFromHeader(ctx);
 
+        ctx.response().setHeader("Access-Control-Allow-Origin", "*");
+
         ObjectNode node = Json.newObject();
         if (token != null && !"".equals(token.trim())) {
             SysUser user = SysUser.findByAuthToken(token);
@@ -52,7 +54,11 @@ public class SecuredAnnotationAction extends Action<SecuredAnnotation> {
         } else {
             node.put(Constants.AUTH_ERROR_KEY, Constants.REQUIRED_AUTH_TOKEN_ERROR);
         }
-        Logger.debug("...but denied with token:{}!",token);
+        Logger.debug("...but denied with token:{}!", token);
+
+
+
+
         return F.Promise.pure((SimpleResult) unauthorized(node));
     }
 

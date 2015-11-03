@@ -1,0 +1,179 @@
+@(token: com.fasterxml.jackson.databind.node.ObjectNode,response: com.fasterxml.jackson.databind.node.ObjectNode)
+@import helper._
+@import helper.twitterBootstrap._
+
+@main("Admin") {
+  <h1>Admin Home</h1>
+
+   <script>
+     //function del(urlToDelete) {
+        var map;
+        $.ajax({
+          url: '@controllers.common.routes.Actions.mapOfModule()',
+          type: 'GET',
+          success: function(results) {
+            var options = '<option value=""></option>';
+            for (module in results) {
+                   options += '<option value="' + module + '">' + module + '</option>';
+             }
+             $("#moduleId").html(options);
+             $("#moduleId").show();
+
+
+              $("#moduleId").change(function(){
+                  var module = $(this).val();
+                  var uris  = results[module];
+
+                  var options = '<option value=""></option>';;
+                  for (uri in uris) {
+                     options += '<option value="' + uri + '">' + uri + '</option>';
+                  }
+                  $("#uriId").html(options);
+                  $("#uriId").show();
+
+
+
+                   $("#uriId").change(function(){
+                      var uri = $(this).val();
+
+                      $("#uri").val(uri);
+
+                      var methods  = uris[uri];
+
+                      var radio = '';
+                      for (method in methods) {
+                         radio +=  '<input type="radio" name="method" value="' + method + '">&nbsp;&nbsp;' + method + '&nbsp;&nbsp;</input>&nbsp;&nbsp;';
+                      }
+
+
+                      $("#methodId").empty();
+                      $("#methodId").append(radio);
+
+                      $('input:radio[name="method"]').change(
+                         function(){
+                           var method = $(this).val();
+                           $("#mappingActionId").html("URI (mapping action: "+methods[method].mappingAction + ")");
+                         });
+
+                   })
+
+
+              })
+          }
+        });
+      //}
+
+      $(function(){
+
+      })
+
+   </script>
+
+
+
+  @helper.form(action = controllers.common.routes.Actions.go()) {
+    <fieldset>
+      <legend>Http Request with token:@token.get("token").asText()</legend>
+        <div class="clearfix  " id="module_field">
+            <label for="moduleId">Module</label>
+            <div class="input">
+                <select id="moduleId">
+
+                </select>
+                <span class="help-inline">
+                    <select id="uriId">
+                    </select>
+                </span>
+
+                <span class="help-block"></span>
+            </div>
+
+
+
+        </div>
+
+        <div class="clearfix  " id="real_uri_field">
+            <label for="methodId">Method</label>
+            <div class="input">
+                <div class="input" id="methodId"></div>
+
+                <span class="help-inline"></span>
+                <span class="help-block"></span>
+            </div>
+        </div>
+
+
+        <div class="clearfix  " id="real_uri_field">
+            <label for="uri" id="mappingActionId">URI</label>
+            <div class="input">
+                <input type="text" id="uri" name="uri"  >
+
+                <span class="help-inline"></span>
+                <span class="help-block"></span>
+            </div>
+        </div>
+
+
+        <div class="clearfix  " id="body_field">
+            <label for="body">Body</label>
+            <div class="input">
+
+                <textarea id="body" rows="10" cols="50" name="body" ></textarea>
+
+                <span class="help-inline"></span>
+                <span class="help-block"></span>
+            </div>
+        </div>
+
+        <input type="hidden" name="token" value="@token.get("token").asText()"/>
+
+    </fieldset>
+    <input type="submit" class="btn btn-primary" value="Go Go Go!">
+
+  }
+
+
+    @if(response != null) {
+        <form class="form-horizontal">
+            <h1>Http Rest Result</h1>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">URI</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">@response.get("method").asText() @response.get("uri")</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">@response.get("head").asText()</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">@response.get(utils.common.Constants.REQUEST_HEAD_TOKEN).asText()</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Request Body</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">@response.get("requestBody").asText()</p>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label for="inputPassword" class="col-sm-2 control-label">Status</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">@response.get("status") @response.get("statusText").asText()</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="responseId" class="col-sm-2 control-label">Content</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static">@response.get("content")</p>
+                </div>
+            </div>
+        </form>
+
+
+    }
+
+
+}

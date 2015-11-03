@@ -3,6 +3,15 @@
 
 # --- !Ups
 
+create table t_action (
+  id                        bigint auto_increment not null,
+  module                    varchar(255) not null,
+  uri                       varchar(255) not null,
+  mapping_action            varchar(255) not null,
+  method                    varchar(255) not null,
+  constraint pk_t_action primary key (id))
+;
+
 create table t_doctor (
   id                        bigint auto_increment not null,
   constraint pk_t_doctor primary key (id))
@@ -125,6 +134,8 @@ create index ix_t_indicator_value_ltr_2 on t_indicator_value (ltr_id);
 # --- !Downs
 
 SET FOREIGN_KEY_CHECKS=0;
+
+drop table t_action;
 
 drop table t_doctor;
 

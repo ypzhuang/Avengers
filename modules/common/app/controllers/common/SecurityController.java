@@ -2,6 +2,7 @@ package controllers.common;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.common.SysUser;
+import play.Logger;
 import play.data.Form;
 import play.data.validation.Constraints;
 import play.libs.Json;
@@ -11,6 +12,8 @@ import play.mvc.Result;
 import play.mvc.With;
 import utils.common.Constants;
 import views.html.login;
+
+
 
 /**
  * Created by ypzhuang on 15/9/21.
@@ -34,7 +37,10 @@ public class SecurityController extends Controller {
 
 
 
-    public static Result authenticate() {
+    public static Result authenticate(String mime) {
+
+        Http.Context.current().response().setHeader("Access-Control-Allow-Origin", "*");
+
         Form<Login> loginForm = Form.form(Login.class).bindFromRequest();
 
         if (loginForm.hasErrors()) {
@@ -53,7 +59,14 @@ public class SecurityController extends Controller {
             String authToken = user.createToken();
             authTokenJson.put(Constants.AUTH_TOKEN, authToken);
             //authTokenJson.put(Constants.ROLE_KEY,user.role.toString());
-            return ok(authTokenJson);
+            if (mime.equalsIgnoreCase("html")) {
+                Logger.debug(authTokenJson.get(Constants.AUTH_TOKEN).toString());
+
+                return ok(views.html.admin.home.render(authTokenJson,null));
+            } else {
+                return ok(authTokenJson);
+            }
+
         }
     }
 

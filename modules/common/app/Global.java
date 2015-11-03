@@ -7,12 +7,26 @@ import java.util.Date;
 import java.util.Random;
 
 import models.common.*;
+import play.api.Mode;
+import play.api.Play;
+import play.libs.F;
+import play.mvc.Http;
+import play.mvc.Result;
+import scala.Function1;
+import scala.collection.JavaConversions;
 
 
 public class Global extends GlobalSettings {
     @Override
     public void onStart(Application app) {
+       
         Logger.info("Application has started");
+
+
+
+
+        InitialData.insertAction(app);
+
         InitialData.insert(app);
     }
 
@@ -21,6 +35,57 @@ public class Global extends GlobalSettings {
         Logger.info("Application shutdown...");
     }
     static class InitialData {
+        public static void insertAction(Application app) {
+            if(Play.current().mode() == Mode.Dev() || Play.current().mode() == Mode.Test()) {
+                List<Object> actionIds = Ebean.find(Action.class).findIds();
+                Ebean.delete(Action.class,actionIds);
+            }
+
+            scala.collection.immutable.List<scala.Tuple3<String,String,String>> commonRoutes = common.Routes.documentation();
+
+
+            List<scala.Tuple3<String,String,String>> commonRoutesList = JavaConversions.asJavaList(commonRoutes);
+
+            Ebean.beginTransaction();
+            try {
+                List<Action> actions = new java.util.ArrayList<Action>();
+                for (scala.Tuple3<String, String, String> route : commonRoutesList) {
+                    String method = route._1();
+                    String uri = route._2();
+                    String mappingAction = route._3();
+
+                    String module = null;
+                    if (uri.length() == 1 || uri.contains("/assets") || uri.contains("/login") || uri.contains("/authenticate") || uri.contains("/actions")) {
+                        continue;
+                    }
+                    int firstSlash = uri.indexOf("/");
+                    int secondSlash = uri.indexOf("/", firstSlash + 1);
+                    if (secondSlash > 0) {
+                        module = uri.substring(firstSlash + 1 , secondSlash);
+                    } else {
+                        module = uri.substring(firstSlash + 1);
+                    }
+
+                    Action action = new Action();
+                    action.method = method;
+                    action.uri = uri;
+                    action.mappingAction = mappingAction;
+                    action.module = module;
+
+                    actions.add(action);
+                }
+                Ebean.save(actions);
+                Ebean.commitTransaction();
+            }catch(Throwable e) {
+                Logger.error(e.getMessage());
+                Ebean.rollbackTransaction();
+            }
+
+
+
+
+
+        }
         public static void insert(Application app) {
 
 
