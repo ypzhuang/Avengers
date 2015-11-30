@@ -34,7 +34,7 @@ public class Ltrs extends Controller {
 
     @SecuredAnnotation({"Super"})
     //@BodyParser.Of(BodyParser.Json.class)
-    public static Result list(String filter,int page,int pageSize){
+    public static Result list(String filter,String status,int page,int pageSize){
 //        JsonNode json = request().body().asJson();
 //        Logger.debug("isArray:{}", json.findPath("status").getClass());
 //
@@ -59,14 +59,56 @@ public class Ltrs extends Controller {
 //            String text = tmp.asText();
 //            Logger.debug("text:{}",text);
 //        }
+        List<LtrStatus> statusList = new ArrayList<LtrStatus>();
+        try {
+            if (status != null && !"".equals(status.trim())) {
+                String statusArray[] = status.split(",");
+                for (String tmpStatus : statusArray) {
+                    LtrStatus ltrStatus = LtrStatus.valueOf(tmpStatus);
+                    statusList.add(ltrStatus);
+                }
+            }
+        }catch(IllegalArgumentException e){
+            ObjectNode json = Json.newObject();
+            json.put("error",e.getMessage());
+            return badRequest(Json.toJson(json));
+        }
 
-        List<Ltr> ltrs = Ltr.search(filter, page, pageSize);
+        List<Ltr> ltrs;
+        if (statusList.size() > 0){
+            ltrs = Ltr.search(filter, page, pageSize,statusList.toArray());
+        } else {
+            ltrs = Ltr.search(filter, page, pageSize);
+        }
+
         return ok(Json.toJson(ltrs));
     }
 
     @SecuredAnnotation({"Super"})
-    public static Result count(String filter,int page,int pageSize){
-        int count = Ltr.count(filter, page, pageSize);
+    public static Result count(String filter,String status,int page,int pageSize){
+        List<LtrStatus> statusList = new ArrayList<LtrStatus>();
+        try {
+            if (status != null && !"".equals(status.trim())) {
+                String statusArray[] = status.split(",");
+                for (String tmpStatus : statusArray) {
+                    LtrStatus ltrStatus = LtrStatus.valueOf(tmpStatus);
+                    statusList.add(ltrStatus);
+                }
+            }
+        }catch(IllegalArgumentException e){
+            ObjectNode json = Json.newObject();
+            json.put("error",e.getMessage());
+            return badRequest(Json.toJson(json));
+        }
+
+        int count;
+        if (statusList.size() > 0){
+            count = Ltr.count(filter, page, pageSize, statusList.toArray());
+        } else {
+            count = Ltr.count(filter, page, pageSize);
+        }
+
+
         Map<String,Integer> map = new HashMap();
         map.put(Constants.JSON_KEY_FOR_COUNT,count);
         return ok(Json.toJson(map));

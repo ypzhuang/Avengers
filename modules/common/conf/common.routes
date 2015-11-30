@@ -17,13 +17,14 @@ GET            /products/search                controllers.common.Products.searc
 GET            /products/home                  controllers.common.Products.home()
 GET            /products/new                   controllers.common.Products.newProduct()
 GET            /products/mode                  controllers.common.Products.currentMode()
+GET            /products/push                  controllers.common.Products.push(deviceToken:String)
+GET            /products/androidPush           controllers.common.Products.androidPush(deviceToken:String)
 GET            /products/:ean                  controllers.common.Products.details(ean: Long)
 POST           /products/save                  controllers.common.Products.save()
 DELETE         /products/:ean                  controllers.common.Products.delete(ean: Long)
 
 
-GET            /products/push                  controllers.common.Products.push(deviceToken:String)
-GET            /products/androidPush           controllers.common.Products.androidPush(deviceToken:String)
+
 
 GET            /ltrs/list4edit                 controllers.common.Ltrs.list4edit(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 GET            /ltrs/count4edit                controllers.common.Ltrs.count4edit(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
@@ -31,8 +32,8 @@ GET            /ltrs/count4edit                controllers.common.Ltrs.count4edi
 GET            /ltrs/list4review               controllers.common.Ltrs.list4review(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 GET            /ltrs/count4review              controllers.common.Ltrs.count4review(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 
-GET            /ltrs/list                      controllers.common.Ltrs.list(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
-GET            /ltrs/count                     controllers.common.Ltrs.count(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
+GET            /ltrs/list                      controllers.common.Ltrs.list(filter:String ?= "",  status:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
+GET            /ltrs/count                     controllers.common.Ltrs.count(filter:String ?= "", status:String ?= "",page: Int ?= 0, pageSize: Int ?= 20 )
 
 
 GET            /ltrs/:id                       controllers.common.Ltrs.findById(id: Long)

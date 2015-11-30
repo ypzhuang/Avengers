@@ -57,7 +57,7 @@ public class Products  extends Controller {
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("type", 1);
-        superApns.setAlert("今天不早点下班吗？？");
+        superApns.setAlert("今天几号了？DD你上线了吗？？？");
         superApns.setObj(map);
         payload = ApnsServiceUtil.createAPNSJson(superApns);
         ApnsNotification notification = service.push(deviceToken, payload);

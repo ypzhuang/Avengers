@@ -13,4 +13,7 @@ public enum LtrStatus {
     Rejected, //6
     UserRejected, //7
     Pushed
+
+
+
 }
