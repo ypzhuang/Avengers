@@ -70,15 +70,23 @@ public class Ltr  extends Model {
     }
 
     public static List<Ltr> search(String filter,int page,int pageSize,Object... status) {
-        return getPage(filter, page, pageSize, status).getList();
+        return getPage(filter, null, page, pageSize, status).getList();
     }
 
-    public static int count(String filter,int page,int pageSize,Object... status) {
-        return getPage(filter, page, pageSize, status).getTotalRowCount();
+    public static int count(String filter, int page,int pageSize,Object... status) {
+        return getPage(filter, null, page, pageSize, status).getTotalRowCount();
+    }
+
+    public static List<Ltr> search(String filter,Boolean isException,int page,int pageSize,Object... status) {
+        return getPage(filter, isException, page, pageSize, status).getList();
+    }
+
+    public static int count(String filter,Boolean isException, int page,int pageSize,Object... status) {
+        return getPage(filter, isException, page, pageSize, status).getTotalRowCount();
     }
 
 
-    private static Page<Ltr> getPage(String filter,int page,int pageSize,Object... status){
+    private static Page<Ltr> getPage(String filter,Boolean isException,int page,int pageSize,Object... status){
         Logger.debug("search ltr with param [{}],[{}],[{}],[{}]", filter, page, pageSize, status);
 
         ExpressionList<Ltr> expression = Ltr.find.where();
@@ -93,6 +101,15 @@ public class Ltr  extends Model {
         }
         if (status != null && status.length > 0) {
             expression.in("status", status);
+        }
+
+
+        if (isException != null ) {
+            if (isException.booleanValue()) {
+                expression.isNotNull("failId");
+//            } else {
+//                expression.isNull("failId");
+            }
         }
 
         return expression

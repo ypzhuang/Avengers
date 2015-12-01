@@ -131,14 +131,14 @@ public class Ltrs extends Controller {
 
 
     @SecuredAnnotation({"Reviewer"})
-    public static Result list4review(String filter,int page,int pageSize){
-        List<Ltr> ltrs = Ltr.search(filter,page,pageSize,LtrStatus.ToReview);
+    public static Result list4review(String filter,Boolean isException,int page,int pageSize){
+        List<Ltr> ltrs = Ltr.search(filter,isException,page,pageSize,LtrStatus.ToReview);
         return ok(Json.toJson(ltrs));
     }
 
     @SecuredAnnotation({"Reviewer"})
-    public static Result count4review(String filter,int page,int pageSize){
-        int count = Ltr.count(filter,page,pageSize,LtrStatus.ToReview);
+    public static Result count4review(String filter,Boolean isException,int page,int pageSize){
+        int count = Ltr.count(filter,isException,page,pageSize,LtrStatus.ToReview);
         Map<String,Integer> map = new HashMap();
         map.put(Constants.JSON_KEY_FOR_COUNT,count);
         return ok(Json.toJson(map));

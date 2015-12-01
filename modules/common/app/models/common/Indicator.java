@@ -54,6 +54,23 @@ public class Indicator extends Model{
 
     public Long lowerlimit; //filter下限
 
+    @Override
+    public String toString() {
+        return "Indicator{" +
+                "id=" + id +
+                ", showname='" + showname + '\'' +
+                ", code='" + code + '\'' +
+                ", description='" + description + '\'' +
+                ", createtime=" + createtime +
+                ", category=" + category +
+                ", unit='" + unit + '\'' +
+                ", type=" + type +
+                ", isDoctorFilter=" + isDoctorFilter +
+                ", logInSlider=" + logInSlider +
+                ", upperlimit=" + upperlimit +
+                ", lowerlimit=" + lowerlimit +
+                '}';
+    }
 
     public static Finder<Long, Indicator> find = new Finder<>(Long.class, Indicator.class);
 

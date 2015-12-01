@@ -29,8 +29,8 @@ DELETE         /products/:ean                  controllers.common.Products.delet
 GET            /ltrs/list4edit                 controllers.common.Ltrs.list4edit(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 GET            /ltrs/count4edit                controllers.common.Ltrs.count4edit(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 
-GET            /ltrs/list4review               controllers.common.Ltrs.list4review(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
-GET            /ltrs/count4review              controllers.common.Ltrs.count4review(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
+GET            /ltrs/list4review               controllers.common.Ltrs.list4review(filter:String ?= "", isException:java.lang.Boolean ?= java.lang.Boolean.FALSE, page: Int ?= 0, pageSize: Int ?= 20 )
+GET            /ltrs/count4review              controllers.common.Ltrs.count4review(filter:String ?= "", isException:java.lang.Boolean ?= java.lang.Boolean.FALSE, page: Int ?= 0, pageSize: Int ?= 20 )
 
 GET            /ltrs/list                      controllers.common.Ltrs.list(filter:String ?= "",  status:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 GET            /ltrs/count                     controllers.common.Ltrs.count(filter:String ?= "", status:String ?= "",page: Int ?= 0, pageSize: Int ?= 20 )
@@ -42,6 +42,7 @@ GET            /ltrs/:id                       controllers.common.Ltrs.findById(
 POST           /ltrs/updateHospital/:id        controllers.common.Ltrs.updateHospital(id: Long)
 
 GET            /ivs/list/:ltrId                controllers.common.IndicatorValues.listByLtrId(ltrId:Long)
+POST           /ivs/:ltrId                     controllers.common.IndicatorValues.saveIndicatorValues(ltrId:Long)
 
 GET            /indicators/$id<[0-9]>          controllers.common.Indicators.findById(id: Long)
 

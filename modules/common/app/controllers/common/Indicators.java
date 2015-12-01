@@ -49,6 +49,4 @@ public class Indicators extends Controller {
         return ok(Json.toJson(map));
     }
 
-
-
 }

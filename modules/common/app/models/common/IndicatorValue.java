@@ -58,7 +58,28 @@ public class IndicatorValue extends Model {
 
     public Double standardValue;//换算后的标准值
 
-
+    @Override
+    public String toString() {
+        return "IndicatorValue{" +
+                "id=" + id +
+                ", indicator=" + indicator +
+                ", category=" + category +
+                ", name='" + name + '\'' +
+                ", cid=" + cid +
+                ", value=" + value +
+                ", state=" + state +
+                ", type=" + type +
+                ", upperlimit=" + upperlimit +
+                ", lowerlimit=" + lowerlimit +
+                ", direction=" + direction +
+                ", calmethod=" + calmethod +
+                ", uid=" + uid +
+                ", testtime=" + testtime +
+                ", ltr=" + ltr +
+                ", isDelete=" + isDelete +
+                ", standardValue=" + standardValue +
+                '}';
+    }
 
     public static Finder<Long, IndicatorValue> find = new Finder<>(Long.class, IndicatorValue.class);
 
@@ -69,5 +90,15 @@ public class IndicatorValue extends Model {
                 .eq("isDelete",0)
                 .orderBy("id asc").findList();
     }
+
+
+    public static void deleteAllByLtrId(Long ltrId) {
+        List<IndicatorValue> ivList = findAllByLtrId(ltrId);
+        for (IndicatorValue value :ivList) {
+            value.isDelete = 1;
+            value.update();
+        }
+    }
+
 
 }
