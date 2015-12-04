@@ -38,8 +38,12 @@ GET            /ltrs/count                     controllers.common.Ltrs.count(fil
 
 GET            /ltrs/:id                       controllers.common.Ltrs.findById(id: Long)
 
+POST           /ltrs/savePicture               controllers.common.Ltrs.savePicture()
+POST           /ltrs/uploadLtrPicture/:id      controllers.common.Ltrs.uploadLtrPicture(id: Long)
+
 #updateHospital test time and hospitail
 POST           /ltrs/updateHospital/:id        controllers.common.Ltrs.updateHospital(id: Long)
+POST           /ltrs/updateFailId/:id          controllers.common.Ltrs.updateLtrFailId(id: Long)
 
 GET            /ivs/list/:ltrId                controllers.common.IndicatorValues.listByLtrId(ltrId:Long)
 POST           /ivs/:ltrId                     controllers.common.IndicatorValues.saveIndicatorValues(ltrId:Long)
@@ -60,7 +64,7 @@ POST           /frs/:id                        controllers.common.FailReasons.up
 POST           /frs                            controllers.common.FailReasons.create()
 DELETE         /frs/:id                        controllers.common.FailReasons.delete(id: Long)
 
-
+GET            /pics/:ltrId                    controllers.common.Pictures.findPictureNameByLtrId(ltrId:Long)
 
 #GET  /products/new   controllers.Products.newProduct()
 #GET  /products/:ean  controllers.Products.details(ean: String)

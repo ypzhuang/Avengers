@@ -30,7 +30,7 @@ public class IndicatorValues extends Controller {
     }
 
 
-    @SecuredAnnotation({"Editor","Reviewer","Super"})
+    @SecuredAnnotation({"Editor","Super"})
     @BodyParser.Of(BodyParser.Json.class)
     @Transactional
     public static Result saveIndicatorValues(Long ltrId){

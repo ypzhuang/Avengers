@@ -153,6 +153,17 @@ public class Global extends GlobalSettings {
                         Ebean.save(value);
                     }
 
+                    Picture pic = new Picture();
+                    pic.createTime = new Date();
+                    pic.ltrId = ltr.id;
+                    pic.partNum = 0;
+                    pic.rotated = 1;
+                    pic.rotation = 90;
+
+                    int randomPic = random.nextInt(16);
+                    pic.storagePath = "" +  randomPic +  ".pic.jpg";
+                    pic.thumbPath = pic.storagePath;
+                    Ebean.save(pic);
                 }
             } else {
                 Logger.info("test data exists");

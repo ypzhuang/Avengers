@@ -27,6 +27,21 @@ create table t_fail_reason (
   constraint pk_t_fail_reason primary key (id))
 ;
 
+create table t_pic_file_history (
+  id                        bigint auto_increment not null,
+  creattime                 datetime,
+  storagepath               varchar(255),
+  partnum                   integer,
+  lid                       bigint,
+  ltr_id                    bigint,
+  size_info                 varchar(255),
+  thumb_path                varchar(255),
+  rotation                  integer,
+  rotated                   integer,
+  create_date               datetime,
+  constraint pk_t_pic_file_history primary key (id))
+;
+
 create table t_hospital (
   id                        bigint auto_increment not null,
   lat                       varchar(255),
@@ -98,6 +113,20 @@ create table t_ltr (
   constraint pk_t_ltr primary key (id))
 ;
 
+create table t_pic_file (
+  id                        bigint auto_increment not null,
+  creattime                 datetime,
+  storagepath               varchar(255),
+  partnum                   integer,
+  lid                       bigint,
+  ltr_id                    bigint,
+  size_info                 varchar(255),
+  thumb_path                varchar(255),
+  rotation                  integer,
+  rotated                   integer,
+  constraint pk_t_pic_file primary key (id))
+;
+
 create table product (
   id                        bigint auto_increment not null,
   ean                       bigint,
@@ -141,6 +170,8 @@ drop table t_doctor;
 
 drop table t_fail_reason;
 
+drop table t_pic_file_history;
+
 drop table t_hospital;
 
 drop table t_indicator;
@@ -148,6 +179,8 @@ drop table t_indicator;
 drop table t_indicator_value;
 
 drop table t_ltr;
+
+drop table t_pic_file;
 
 drop table product;
 

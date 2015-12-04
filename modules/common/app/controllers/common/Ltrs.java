@@ -3,24 +3,35 @@ package controllers.common;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.common.Hospital;
+import com.google.common.io.Files;
+import models.common.*;
+import org.springframework.beans.BeanUtils;
 import play.Logger;
+import play.core.j.JavaResultExtractor;
 import play.data.Form;
 import play.data.validation.Constraints;
-import play.mvc.BodyParser;
-import play.mvc.With;
+import play.db.ebean.Transactional;
+import play.mvc.*;
 import utils.common.Constants;
-import models.common.Ltr;
-import models.common.LtrStatus;
 import play.libs.Json;
-import play.mvc.Controller;
-import play.mvc.Result;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @With(CatchAction.class)
 public class Ltrs extends Controller {
+    public static class LtrHospitalAndTesttimeForm {
+        @Constraints.Required
+        public Long hospitalId;
 
+        @Constraints.Required
+        public String hospitalName;
+
+        @Constraints.Required
+        public Date testtime;
+    }
 
 
     @SecuredAnnotation({"Editor","Reviewer","Super"}) // TODO add some constraints
@@ -33,32 +44,7 @@ public class Ltrs extends Controller {
     }
 
     @SecuredAnnotation({"Super"})
-    //@BodyParser.Of(BodyParser.Json.class)
     public static Result list(String filter,String status,int page,int pageSize){
-//        JsonNode json = request().body().asJson();
-//        Logger.debug("isArray:{}", json.findPath("status").getClass());
-//
-//        if (json.get("status") != null ) {
-//
-//            if (json.get("status").isArray()) {
-//                ArrayNode data=(ArrayNode)json.get("status");
-//                List<LtrStatus> statuses=new ArrayList<LtrStatus>();
-//                for (JsonNode dataNode : data) {
-//                    statuses.add(LtrStatus.valueOf(dataNode.asText()));
-//                }
-//                Logger.debug("status is :{}",statuses);
-//            }
-//
-//        }
-//
-//
-//
-//        List<JsonNode> statusList = json.findValues("status");
-//
-//        for (JsonNode tmp : statusList) {
-//            String text = tmp.asText();
-//            Logger.debug("text:{}",text);
-//        }
         List<LtrStatus> statusList = new ArrayList<LtrStatus>();
         try {
             if (status != null && !"".equals(status.trim())) {
@@ -138,7 +124,7 @@ public class Ltrs extends Controller {
 
     @SecuredAnnotation({"Reviewer"})
     public static Result count4review(String filter,Boolean isException,int page,int pageSize){
-        int count = Ltr.count(filter,isException,page,pageSize,LtrStatus.ToReview);
+        int count = Ltr.count(filter, isException, page, pageSize, LtrStatus.ToReview);
         Map<String,Integer> map = new HashMap();
         map.put(Constants.JSON_KEY_FOR_COUNT,count);
         return ok(Json.toJson(map));
@@ -191,17 +177,150 @@ public class Ltrs extends Controller {
     }
 
 
-    public static class LtrHospitalAndTesttimeForm {
-        @Constraints.Required
-        public Long hospitalId;
+    @SecuredAnnotation({"Editor","Super"})
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result updateLtrFailId(Long id){
 
-        @Constraints.Required
-        public String hospitalName;
+        ObjectNode json = Json.newObject();
+        final Ltr ltr  = Ltr.find.byId(id);
+        if (ltr == null) {
+            json.put("error", String.format("Ltr(%d) does not exist.", id));
+            return notFound(Json.toJson(json));
+        }
 
-        @Constraints.Required
-        public Date testtime;
+        JsonNode bodyJSON = request().body().asJson();
+        Long failId = bodyJSON.findPath("failId").asLong();
+
+        FailReason failReason = null;
+        if(failId == null || failId <= 0) {
+            json.put("error","Missing parameter [failId]");
+            return badRequest(Json.toJson(json));
+        } else {
+            failReason = FailReason.findById(failId);
+            if (failReason == null) {
+                json.put("error","invalid failId");
+                return  badRequest(Json.toJson(json));
+            }
+        }
+        ltr.failId = failReason.id;
+        ltr.update();
+        return ok(Json.toJson(ltr));
     }
 
+    @SecuredAnnotation({"Editor"})
+    @Transactional
+    public static Result uploadLtrPicture(Long id){
+        ObjectNode json = Json.newObject();
+        final Ltr ltr  = Ltr.find.byId(id);
+        if (ltr == null) {
+            json.put("error", String.format("Ltr(%d) does not exist.", id));
+            return notFound(Json.toJson(json));
+        }
+
+        Result result = savePicture();
+
+
+        if (result instanceof  SimpleResult) {
+            SimpleResult status = (SimpleResult)result;
+            int actual =  status.getWrappedSimpleResult().header().status();
+            int expected = Results.ok().getWrappedSimpleResult().header().status();
+            if (actual == expected) {
+                String fileName = getFileName(result);
+                Picture picture = Picture.findPictureByLtrId(id);
+                if (picture != null) {
+                    HistoryPicture historyPicture = new HistoryPicture();
+                    BeanUtils.copyProperties(picture,historyPicture);
+                    historyPicture.id = null;
+                    historyPicture.save();
+
+                    picture.storagePath = fileName;
+                    picture.save();
+                } else {
+                    json.put("error",  String.format("Cannot find the picture of ltr:(%d)", id));
+                    return internalServerError(Json.toJson(json));
+                }
+            } else {
+                return result;
+            }
+
+        }
+
+
+        return ok();
+    }
+
+
+    private static String getFileName(Result result){
+        SimpleResult status = (SimpleResult)result;
+
+        Logger.debug("status.getWrappedSimpleResult():{}", status.getWrappedSimpleResult());
+
+        String header = JavaResultExtractor.getHeaders(status).get("Content-Type");
+        String charset = "utf-8";
+        if(header != null && header.contains("; charset=")){
+            charset = header.substring(header.indexOf("; charset=") + 10, header.length()).trim();
+        }
+        byte[] body = JavaResultExtractor.getBody(status);
+        String bodyStr = null;
+        try {
+            bodyStr = new String(body, charset);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        JsonNode bodyJson = Json.parse(bodyStr);
+        String fileName = bodyJson.get("file").asText();
+        Logger.debug("Got filename:" + fileName);
+        return fileName;
+    }
+
+    public static Result savePicture(){
+
+        Http.MultipartFormData body = request().body().asMultipartFormData();
+        List<Http.MultipartFormData.FilePart> filePartList = body.getFiles();
+        Logger.debug("fileList Size:{}",filePartList.size());
+
+        ObjectNode json = Json.newObject();
+        if (filePartList.size() == 0) {
+            json.put("error","please select a file to upload!");
+            return badRequest(Json.toJson(json));
+        } else if (filePartList.size() > 1) {
+            json.put("error","Now we only support one file to upload!");
+            return badRequest(Json.toJson(json));
+        } else {
+
+            Http.MultipartFormData.FilePart part = filePartList.get(0);
+            File file = part.getFile();
+            String contentType = part.getContentType();
+
+            if (!"image/jpeg".equals(contentType) && !"image/png".equals(contentType)) {
+                json.put("error","Not support " + contentType + ".We only support jpeg and png!");
+                return badRequest(Json.toJson(json));
+            }
+
+            Logger.debug("contentType:{}", part.getContentType());
+            Logger.debug("fileName:{}", part.getFilename());
+            Logger.debug("key:{}", part.getKey());
+            try {
+
+                String dir = play.Play.application().configuration().getString("FileServer.dir");
+
+                String oldFileName = part.getFilename();
+
+                String newFileName =
+                        oldFileName.substring(0, oldFileName.lastIndexOf(".")) + "_" +
+                        System.currentTimeMillis() + oldFileName.substring(oldFileName.lastIndexOf("."),oldFileName.length());
+                File toFile = new File(dir + File.separator + newFileName);
+                Files.copy(file,toFile);
+
+                json.put("file", newFileName);
+                return ok(Json.toJson(json));
+
+            } catch (IOException e) {
+                return internalServerError("Error reading file upload");
+            }
+
+        }
+    }
 
 
 }
