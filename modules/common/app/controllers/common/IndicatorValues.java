@@ -2,20 +2,17 @@ package controllers.common;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import models.common.Indicator;
-import models.common.IndicatorValue;
-import models.common.Ltr;
+import models.common.*;
+import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.db.ebean.Transactional;
 import play.libs.Json;
-import play.mvc.Controller;
-import play.mvc.Result;
-import play.mvc.With;
+import play.mvc.*;
 
 import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
-import play.mvc.BodyParser;
 
 /**
  * Created by ypzhuang on 15/9/16.
@@ -34,8 +31,21 @@ public class IndicatorValues extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     @Transactional
     public static Result saveIndicatorValues(Long ltrId){
+        ObjectNode jsonResult = Json.newObject();
         JsonNode jsonData = request().body().asJson();
         Logger.debug("jsonData:{}",jsonData);
+        if (jsonData == null) {
+            jsonResult.put("error","json body error");
+            return badRequest(Json.toJson(jsonResult));
+        }
+
+        Ltr ltr = Ltr.find.byId(ltrId);
+        boolean isEdited = ltr.status.equals(LtrStatus.ToEdit) || ltr.status.equals(LtrStatus.UserRejected)  ||
+        ltr.status.equals(LtrStatus.Rejected);
+        if (ltr == null || !isEdited) {
+            jsonResult.put("error","illegal status of ltr");
+            return badRequest(Json.toJson(jsonResult));
+        }
 
         String json = jsonData.toString();
         Logger.debug("ltrId:{}, with indicator value data {}",ltrId,json);
@@ -45,11 +55,14 @@ public class IndicatorValues extends Controller {
             List<IndicatorValue> lists = new ObjectMapper().readValue(json,
                     TypeFactory.defaultInstance().constructCollectionType(List.class,IndicatorValue.class));
             Logger.debug("values:{}",lists);
+            if (lists == null) {
+                jsonResult.put("error","illegal json body");
+                return badRequest(Json.toJson(jsonResult));
+            }
 
             IndicatorValue.deleteAllByLtrId(ltrId);
             for(IndicatorValue iv : lists) {
                 Indicator indicator = Indicator.find.byId(iv.indicator.id);
-                Ltr ltr = Ltr.find.byId(ltrId);
                 iv.category = indicator.category;
                 iv.uid = ltr.uid;
                 iv.isDelete = 0;
@@ -68,6 +81,29 @@ public class IndicatorValues extends Controller {
         return ok();
     }
 
+    @SecuredAnnotation({"Editor","Super"})
+    @BodyParser.Of(BodyParser.Json.class)
+    @Transactional
+    public static Result commitIndicatorValues(Long ltrId){
+        Result result = saveIndicatorValues(ltrId);
+        if (result instanceof SimpleResult) {
+            SimpleResult status = (SimpleResult)result;
+            int actual =  status.getWrappedSimpleResult().header().status();
+            int expected = Results.ok().getWrappedSimpleResult().header().status();
+            if (actual == expected) {
+                Ltr ltr = Ltr.find.byId(ltrId);
+                ltr.status = LtrStatus.ToReview;
+                ltr.save();
+                return ok();
+
+            } else {
+                return result;
+            }
+
+        } else {
+            return internalServerError();
+        }
+    }
 
 
 

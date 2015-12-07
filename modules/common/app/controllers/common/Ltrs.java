@@ -12,6 +12,8 @@ import play.data.Form;
 import play.data.validation.Constraints;
 import play.db.ebean.Transactional;
 import play.mvc.*;
+import push.PushException;
+import push.PushUtils;
 import utils.common.Constants;
 import play.libs.Json;
 
@@ -118,7 +120,7 @@ public class Ltrs extends Controller {
 
     @SecuredAnnotation({"Reviewer"})
     public static Result list4review(String filter,Boolean isException,int page,int pageSize){
-        List<Ltr> ltrs = Ltr.search(filter,isException,page,pageSize,LtrStatus.ToReview);
+        List<Ltr> ltrs = Ltr.search(filter, isException, page, pageSize, LtrStatus.ToReview);
         return ok(Json.toJson(ltrs));
     }
 
@@ -126,7 +128,7 @@ public class Ltrs extends Controller {
     public static Result count4review(String filter,Boolean isException,int page,int pageSize){
         int count = Ltr.count(filter, isException, page, pageSize, LtrStatus.ToReview);
         Map<String,Integer> map = new HashMap();
-        map.put(Constants.JSON_KEY_FOR_COUNT,count);
+        map.put(Constants.JSON_KEY_FOR_COUNT, count);
         return ok(Json.toJson(map));
     }
 
@@ -273,6 +275,7 @@ public class Ltrs extends Controller {
         return fileName;
     }
 
+    @SecuredAnnotation({"Editor","Super"})
     public static Result savePicture(){
 
         Http.MultipartFormData body = request().body().asMultipartFormData();
@@ -321,6 +324,98 @@ public class Ltrs extends Controller {
 
         }
     }
+
+
+    @SecuredAnnotation({"Reviewer","Super"})
+    @Transactional
+    public static Result reject(Long id) {
+        ObjectNode json = Json.newObject();
+        final Ltr ltr = Ltr.find.byId(id);
+        if (ltr == null) {
+            json.put("error", String.format("Ltr(%d) does not exist.", id));
+            return notFound(Json.toJson(json));
+        } else if (!ltr.status.equals(LtrStatus.ToReview)){
+            json.put("error", String.format("illegal Ltr(%d) status.", id));
+            return badRequest(Json.toJson(json));
+        }
+
+        ltr.status = LtrStatus.Rejected;
+        ltr.save();
+
+        return ok();
+
+    }
+
+    @SecuredAnnotation({"Reviewer","Super"})
+    @Transactional
+    public static Result push(Long id) {
+        ObjectNode json = Json.newObject();
+        final Ltr ltr = Ltr.find.byId(id);
+        if (ltr == null) {
+            json.put("error", String.format("Ltr(%d) does not exist.", id));
+            return notFound(Json.toJson(json));
+        }
+
+        if (!ltr.status.equals(LtrStatus.ToReview)) {
+            json.put("error", String.format("illegal Ltr(%d) status.", id));
+            return badRequest(Json.toJson(json));
+        }
+
+        try {
+
+            String type;
+            String reason = "";
+            if (ltr.failId != null) { //失败推送
+                ltr.finish = 2; //兼容old manager
+                ltr.state = 3;
+                ltr.status = LtrStatus.Pushed;
+                ltr.save();
+                type = "0";
+                FailReason failReason = FailReason.findById(ltr.failId);
+                reason = failReason.content;
+            } else {  //成功推送
+                ltr.status = LtrStatus.Pushed;
+                ltr.save();
+                type = "1";
+            }
+
+            List<Device> devices = Device.findAllByUserId(ltr.uid);
+
+
+            for (Device device : devices) {
+                PushUtils.MessageBody body = new PushUtils.MessageBody();
+
+                body.clientType = device.clientType;
+                body.type = type;
+                if (type.equals("1")) {
+                    body.title = "化验单成功识别";
+
+                    body.message = reason;
+                } else {
+                    body.title = "化验单失败失败";
+                    body.message = "你有一张化验单识别好了";
+                }
+
+                PushUtils.mockpush(device.machineid, body);
+
+            }
+
+        } catch(PushException e){
+            json.put("error", e.getMessage());
+            return badRequest(Json.toJson(json));
+        } catch(Exception e) {
+            json.put("error", e.getMessage());
+            return internalServerError(Json.toJson(json));
+        }
+
+
+        return ok();
+
+    }
+
+
+
+
 
 
 }

@@ -30,7 +30,10 @@ public class Pictures extends Controller {
         }
 
         String fileName = picture.storagePath;
-        json.put("fileName",  fileName);
+
+        String imageURL = play.Play.application().configuration().getString("FileServer.url");
+
+        json.put("fileName",  imageURL+fileName);
         return ok(Json.toJson(json));
     }
 }

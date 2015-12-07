@@ -12,6 +12,15 @@ create table t_action (
   constraint pk_t_action primary key (id))
 ;
 
+create table t_user_n_machine (
+  id                        bigint auto_increment not null,
+  uid                       bigint,
+  machineid                 varchar(255),
+  create_time               datetime,
+  client_type               varchar(255),
+  constraint pk_t_user_n_machine primary key (id))
+;
+
 create table t_doctor (
   id                        bigint auto_increment not null,
   constraint pk_t_doctor primary key (id))
@@ -165,6 +174,8 @@ create index ix_t_indicator_value_ltr_2 on t_indicator_value (ltr_id);
 SET FOREIGN_KEY_CHECKS=0;
 
 drop table t_action;
+
+drop table t_user_n_machine;
 
 drop table t_doctor;
 
