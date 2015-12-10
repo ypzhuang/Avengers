@@ -87,7 +87,7 @@ public class Global extends GlobalSettings {
 
         }
         public static void insert(Application app) {
-
+            insertHospitalTestData();
 
             if (Ebean.find(Indicator.class).findRowCount() == 0) {
                 Logger.info("insert indicator test data");
@@ -170,7 +170,7 @@ public class Global extends GlobalSettings {
             }
 
 
-            insertHospitalTestData();
+
 
 
             insertUserTestDate();
@@ -233,11 +233,16 @@ public class Global extends GlobalSettings {
                 SysUser superUser = new SysUser("super@augbase.com","12345678");
                 superUser.role = Role.Super;
                 superUser.save();
+
+
+                SysUser superUser1 = new SysUser("super1@augbase.com","12345678");
+                superUser1.role = Role.Super;
+                superUser1.save();
             }
         }
 
+        private static String hospitals[] = {"延安大学附属医院","北京市隆福医院","北京市海淀区妇幼保健院"};
         public static void insertHospitalTestData() {
-            String hospitals[] = {"延安大学附属医院","北京市隆福医院","北京市海淀区妇幼保健院"};
             String addresses[] = {"陕西省延安市中心街250号","北京市东城区美术馆东街18号","北京市海淀区海淀南路33号"};
             if (Ebean.find(Hospital.class).findRowCount() == 0) {
                 Logger.info("insert hosptial ltr data");
@@ -258,10 +263,11 @@ public class Global extends GlobalSettings {
             Long uid  =  random.nextLong();
             ltr.uid = (uid > 0 ? uid : -uid);
 
-            Long hid  =  random.nextLong();
-            ltr.hid = (hid > 0 ? hid : -hid);
-
             ltr.hospital = generateHosptial();
+
+            Hospital hospital = Ebean.find(Hospital.class).where().eq("name",ltr.hospital).findUnique();
+            ltr.hid = hospital.id;
+
             ltr.createtime = new Date();
             ltr.testtime =  new Date();
             ltr.category = 1;
@@ -274,10 +280,9 @@ public class Global extends GlobalSettings {
         }
 
         public static String generateHosptial(){
-            String hosptials[] = {"上海瑞金医院","华山医院分院","上海中山医院","中国医院分院"};
             Random random = new Random();
-            int i = random.nextInt(4);
-            return hosptials[i];
+            int i = random.nextInt(3);
+            return hospitals[i];
         }
 
         static int index;

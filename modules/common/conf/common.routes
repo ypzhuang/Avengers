@@ -47,6 +47,7 @@ POST           /ltrs/updateFailId/:id            controllers.common.Ltrs.updateL
 
 POST           /ltrs/reject/:id                  controllers.common.Ltrs.reject(id: Long)
 POST           /ltrs/push/:id                    controllers.common.Ltrs.push(id: Long)
+POST           /ltrs/o2e/:id                     controllers.common.Ltrs.ocringToEditing(id: Long)
 
 GET            /ivs/list/:ltrId                  controllers.common.IndicatorValues.listByLtrId(ltrId:Long)
 POST           /ivs/save/:ltrId                  controllers.common.IndicatorValues.saveIndicatorValues(ltrId:Long)

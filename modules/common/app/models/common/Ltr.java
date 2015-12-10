@@ -4,10 +4,8 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
 import play.Logger;
 import play.db.ebean.Model;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +53,7 @@ public class Ltr  extends Model {
 
     public Integer type; // 化验单类型，0:指数类型 1: 文本类型
 
+    @Enumerated(EnumType.STRING)
     public LtrStatus status; //status new added
 
     @Column(name="agent_info")

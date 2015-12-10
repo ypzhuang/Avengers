@@ -116,9 +116,9 @@ create table t_ltr (
   is_viewed_by_me           tinyint(1) default 0,
   viewed_doctor_ids         varchar(255),
   type                      integer,
-  status                    integer,
+  status                    varchar(12),
   agent_info                varchar(255),
-  constraint ck_t_ltr_status check (status in (0,1,2,3,4,5,6,7,8)),
+  constraint ck_t_ltr_status check (status in ('NEW','Preprocessed','OCRING','REOCR','ToEdit','ToReview','Rejected','UserRejected','Pushed')),
   constraint pk_t_ltr primary key (id))
 ;
 

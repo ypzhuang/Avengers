@@ -415,6 +415,25 @@ public class Ltrs extends Controller {
 
 
 
+    @SecuredAnnotation({"Super"})
+    public static Result ocringToEditing(Long id) {
+        ObjectNode json = Json.newObject();
+        final Ltr ltr = Ltr.find.byId(id);
+        if (ltr == null) {
+            json.put("error", String.format("Ltr(%d) does not exist.", id));
+            return notFound(Json.toJson(json));
+        }
+
+        if (!ltr.status.equals(LtrStatus.OCRING) && !ltr.status.equals(LtrStatus.REOCR)) {
+            json.put("error", String.format("illegal Ltr(%d) status.", id));
+            return badRequest(Json.toJson(json));
+        }
+
+        ltr.status = LtrStatus.ToEdit;
+        ltr.save();
+
+        return ok();
+    }
 
 
 
