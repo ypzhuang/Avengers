@@ -3,9 +3,12 @@
 # ~~~~
 
 # Home page
-GET        /                    controllers.ironman.Application.index()
 
-->         /common              common.Routes
+
+GET         /rooms              controllers.ironman.Rooms.findAllRooms()
+GET         /rooms/create       controllers.ironman.Rooms.createRoom()
+GET         /users              controllers.ironman.Users.findAllUsers()
+
 
 
 # Map static resources from the /public folder to the /assets URL path

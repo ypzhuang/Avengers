@@ -20,7 +20,7 @@ import java.util.List;
 public class FailReasons extends Controller {
 
 
-    @SecuredAnnotation({"Reviewer","Super"})
+    @SecuredAnnotation({"Editor","Reviewer","Super"})
     public static Result list() {
         List<FailReason> failReasons = FailReason.findAll();
         return ok(Json.toJson(failReasons));

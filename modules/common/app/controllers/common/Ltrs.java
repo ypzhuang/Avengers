@@ -188,7 +188,13 @@ public class Ltrs extends Controller {
         if (ltr == null) {
             json.put("error", String.format("Ltr(%d) does not exist.", id));
             return notFound(Json.toJson(json));
+        } else  if (!ltr.status.equals(LtrStatus.ToEdit) &&
+                !ltr.status.equals(LtrStatus.UserRejected) &&
+                !ltr.status.equals(LtrStatus.Rejected)) {
+            json.put("error", String.format("illegal Ltr(%d) status.", id));
+            return badRequest(Json.toJson(json));
         }
+
 
         JsonNode bodyJSON = request().body().asJson();
         Long failId = bodyJSON.findPath("failId").asLong();
@@ -205,6 +211,7 @@ public class Ltrs extends Controller {
             }
         }
         ltr.failId = failReason.id;
+        ltr.status = LtrStatus.ToReview;
         ltr.update();
         return ok(Json.toJson(ltr));
     }
