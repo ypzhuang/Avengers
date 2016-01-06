@@ -60,7 +60,7 @@ GET            /indicators/list                  controllers.common.Indicators.l
 GET            /indicators/count                 controllers.common.Indicators.count(filter:String ?= "",category:Int ?= -1, page: Int ?= 0, pageSize: Int ?= 20)
 
 GET            /indicators/:name                 controllers.common.Indicators.filterByVal(name: String)
-
+PUT            /indicators/$id<[0-9]>            controllers.common.Indicators.update(id: Long)
 
 GET            /hospitals/list                   controllers.common.Hospitals.list(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
 GET            /hospitals/count                  controllers.common.Hospitals.count(filter:String ?= "", page: Int ?= 0, pageSize: Int ?= 20 )
@@ -76,7 +76,15 @@ GET            /pics/:ltrId                      controllers.common.Pictures.fin
 #GET  /products/:ean  controllers.Products.details(ean: String)
 #POST /products/      controllers.Products.save()
 
-GET            /emailSender                      controllers.common.Application.emailSender()
+
+GET            /sus                             controllers.common.SysUsers.listAll()
+PUT            /sus/:id/open                    controllers.common.SysUsers.open(id: Long)
+PUT            /sus/:id/close                   controllers.common.SysUsers.close(id: Long)
+POST           /sus                             controllers.common.SysUsers.addSysUser()
+POST           /sus/changePassword/:id          controllers.common.SysUsers.changePassword(id: Long)
+
+
+GET            /emailSender                     controllers.common.Application.emailSender()
 
 
 # Map static resources from the /public folder to the /assets URL path

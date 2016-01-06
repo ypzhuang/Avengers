@@ -3,8 +3,37 @@
 
 # --- !Ups
 
+create table t_action (
+  id                        bigint auto_increment not null,
+  module                    varchar(255) not null,
+  uri                       varchar(255) not null,
+  mapping_action            varchar(255) not null,
+  method                    varchar(255) not null,
+  constraint pk_t_action primary key (id))
+;
+
+create table t_user_n_machine (
+  id                        bigint auto_increment not null,
+  uid                       bigint,
+  machineid                 varchar(255),
+  create_time               datetime,
+  client_type               varchar(255),
+  constraint pk_t_user_n_machine primary key (id))
+;
+
 create table t_doctor (
   id                        bigint auto_increment not null,
+  doctor_name               varchar(255),
+  nickname                  varchar(255),
+  img                       varchar(255),
+  detail                    varchar(255),
+  gender                    integer,
+  age                       integer,
+  email                     varchar(255),
+  tel                       varchar(255),
+  gid                       varchar(255),
+  is_delete                 integer,
+  create_time               datetime,
   constraint pk_t_doctor primary key (id))
 ;
 
@@ -16,6 +45,21 @@ create table t_fail_reason (
   is_delete                 tinyint(1) default 0,
   suggest                   varchar(1000),
   constraint pk_t_fail_reason primary key (id))
+;
+
+create table t_pic_file_history (
+  id                        bigint auto_increment not null,
+  creattime                 datetime,
+  storagepath               varchar(255),
+  partnum                   integer,
+  lid                       bigint,
+  ltr_id                    bigint,
+  size_info                 varchar(255),
+  thumb_path                varchar(255),
+  rotation                  integer,
+  rotated                   integer,
+  create_date               datetime,
+  constraint pk_t_pic_file_history primary key (id))
 ;
 
 create table t_hospital (
@@ -83,10 +127,24 @@ create table t_ltr (
   is_viewed_by_me           tinyint(1) default 0,
   viewed_doctor_ids         varchar(255),
   type                      integer,
-  status                    integer,
+  status                    varchar(12),
   agent_info                varchar(255),
-  constraint ck_t_ltr_status check (status in (0,1,2,3,4,5,6,7,8)),
+  constraint ck_t_ltr_status check (status in ('NEW','Preprocessed','OCRING','REOCR','ToEdit','ToReview','Rejected','UserRejected','Pushed')),
   constraint pk_t_ltr primary key (id))
+;
+
+create table t_pic_file (
+  id                        bigint auto_increment not null,
+  creattime                 datetime,
+  storagepath               varchar(255),
+  partnum                   integer,
+  lid                       bigint,
+  ltr_id                    bigint,
+  size_info                 varchar(255),
+  thumb_path                varchar(255),
+  rotation                  integer,
+  rotated                   integer,
+  constraint pk_t_pic_file primary key (id))
 ;
 
 create table product (
@@ -107,8 +165,8 @@ create table t_sys_user (
   is_deleted                tinyint(1) default 0,
   created_date              datetime,
   last_login_time           datetime,
-  role                      integer,
-  constraint ck_t_sys_user_role check (role in (0,1,2,3)),
+  role                      varchar(8),
+  constraint ck_t_sys_user_role check (role in ('Guest','Editor','Reviewer','Super')),
   constraint uq_t_sys_user_email unique (email),
   constraint uq_t_sys_user_phone unique (phone),
   constraint uq_t_sys_user_auth_token unique (auth_token),
@@ -126,9 +184,15 @@ create index ix_t_indicator_value_ltr_2 on t_indicator_value (ltr_id);
 
 SET FOREIGN_KEY_CHECKS=0;
 
+drop table t_action;
+
+drop table t_user_n_machine;
+
 drop table t_doctor;
 
 drop table t_fail_reason;
+
+drop table t_pic_file_history;
 
 drop table t_hospital;
 
@@ -137,6 +201,8 @@ drop table t_indicator;
 drop table t_indicator_value;
 
 drop table t_ltr;
+
+drop table t_pic_file;
 
 drop table product;
 

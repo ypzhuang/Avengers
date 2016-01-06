@@ -2,6 +2,8 @@ package controllers.common;
 
 
 import models.common.Ltr;
+import org.springframework.beans.BeanUtils;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -49,4 +51,20 @@ public class Indicators extends Controller {
         return ok(Json.toJson(map));
     }
 
+
+    @SecuredAnnotation({"Super"})
+    public static Result update(Long id) {
+        Indicator indicator= Indicator.findById(id);
+        if (indicator == null) {
+            return notFound(String.format("Indicator(%d) does not exist.", id));
+        }
+
+        Form<Indicator> indicatorForm = Form.form(Indicator.class).bindFromRequest();
+        Indicator value = indicatorForm.get();
+
+        BeanUtils.copyProperties(value,indicator);
+        indicator.id = id;
+        indicator.save();
+        return ok();
+    }
 }

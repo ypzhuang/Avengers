@@ -1,13 +1,11 @@
 package models.common;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,6 +26,7 @@ public class SysUser extends Model {
     @Column(unique=true)
     public String phone;
 
+    @JsonIgnore
     @Column(length=64, nullable=false)
     private byte[] password;
 
@@ -35,9 +34,11 @@ public class SysUser extends Model {
         this.password = getSha512(password);
     }
 
+    @JsonIgnore
     @Column(length=64,unique=true)
     public byte[] authToken; //it's better to store token in a sub table for multi device to login
 
+    @JsonIgnore
     public String tempToken; //just for develop, transient at product env
 
     private static byte[] getSha512(String value) {
@@ -59,6 +60,7 @@ public class SysUser extends Model {
 
     public Date lastLoginTime;
 
+    @Enumerated(EnumType.STRING)
     public Role role;
 
     public SysUser() {
@@ -114,6 +116,12 @@ public class SysUser extends Model {
     public static SysUser findByEmail(String email) {
         return SysUser.find.where()
                 .eq("email", email.toLowerCase())
+                .findUnique();
+    }
+
+    public static SysUser findByPhone(String phone) {
+        return SysUser.find.where()
+                .eq("phone", phone)
                 .findUnique();
     }
 

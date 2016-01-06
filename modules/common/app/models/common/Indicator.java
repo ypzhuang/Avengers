@@ -48,6 +48,8 @@ public class Indicator extends Model{
 
     public boolean isDoctorFilter ;  //是否医生筛选动态的指标
 
+
+    @Column(name="is_logIn_slider")
     public boolean logInSlider;  //filter是否是对数函数(log)显示
 
     public Long upperlimit; //filter上限
