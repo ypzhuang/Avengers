@@ -84,6 +84,13 @@ POST           /sus                             controllers.common.SysUsers.addS
 POST           /sus/changePassword/:id          controllers.common.SysUsers.changePassword(id: Long)
 
 
+GET            /doctors/list                    controllers.common.Doctors.list(filter:String ?= "",page: Int ?= 0, pageSize: Int ?= 20 )
+GET            /doctors/count                   controllers.common.Doctors.count(filter:String ?= "",page: Int ?= 0, pageSize: Int ?= 20 )
+
+GET            /users/list                    controllers.common.Users.list(filter:String ?= "",page: Int ?= 0, pageSize: Int ?= 20 )
+GET            /users/count                   controllers.common.Users.count(filter:String ?= "",page: Int ?= 0, pageSize: Int ?= 20 )
+
+
 GET            /emailSender                     controllers.common.Application.emailSender()
 
 
